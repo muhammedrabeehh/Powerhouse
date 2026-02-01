@@ -1,0 +1,295 @@
+<%- include('../../partials/header') %>
+
+    <div class="layout-wrapper">
+        <%- include('../../partials/sidebar', { page: 'bills' , user: user }) %>
+
+            <div class="main-content">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+                    <div>
+                        <h1>Bill Management</h1>
+                        <p class="text-muted">Manage house expenses.</p>
+                    </div>
+                    <button onclick="window.location.reload()" class="btn btn-secondary"
+                        style="padding: 8px 12px; font-size: 0.9em; display: flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+
+                <%- include('../../partials/admin_tabs', { page: 'active' }) %>
+
+                    <!-- Active Bills List -->
+                    <% if (bills && bills.length> 0) { %>
+                        <% bills.forEach(bill=> { %>
+                            <div class="card" style="padding: 0; overflow: hidden;">
+                                <div class="flex justify-between items-center"
+                                    style="padding: 24px; border-bottom: 1px solid var(--border-color); background: var(--bg-card);">
+                                    <div>
+                                        <h3 style="margin-bottom: 8px; color: var(--text-main);">
+                                            <%= bill.description %>
+                                        </h3>
+                                        <div class="flex items-center" style="gap: 15px; flex-wrap: wrap;">
+                                            <span class="text-muted" style="font-size: 0.9em;">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                    style="width: 16px; display: inline; vertical-align: text-bottom;">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                                <%= new Date(bill.date).toLocaleDateString() %>
+                                            </span>
+                                            <span
+                                                style="background: var(--bg-input); padding: 4px 12px; border-radius: 20px; font-size: 0.85em; border: 1px solid var(--border-color);">
+                                                Total: <strong style="color: var(--text-main);">₹<%= bill.totalAmount %>
+                                                </strong>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button onclick="sendReminders('<%= bill._id %>')" class="btn btn-secondary"
+                                        style="font-size: 0.85em; padding: 8px 16px;">
+                                        Send Reminders
+                                    </button>
+                                    <button onclick="deleteBill('<%= bill._id %>')" class="btn"
+                                        style="font-size: 0.85em; padding: 8px 16px; background: rgba(244, 63, 94, 0.1); color: var(--error); border: 1px solid var(--error); margin-left: 10px;">
+                                        Delete Bill
+                                    </button>
+                                </div>
+
+                                <div style="overflow-x: auto;">
+                                    <table style="margin: 0;">
+                                        <thead style="background: var(--bg-input);">
+                                            <tr>
+                                                <th style="padding-left: 24px;">Roommate</th>
+                                                <th>Status</th>
+                                                <th>Proof</th>
+                                                <th style="padding-right: 24px;">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% bill.payments.forEach(payment=> { %>
+                                                <tr>
+                                                    <td style="padding-left: 24px;">
+                                                        <div style="font-weight: 600; color: var(--text-main);">
+                                                            <%= payment.user ? payment.user.name : 'Unknown' %>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <% if(payment.status==='Paid' ) { %>
+                                                            <span class="text-success"
+                                                                style="font-weight: bold; font-size: 0.9em;">PAID</span>
+                                                            <% } else if(payment.status==='Pending_Approval' ) { %>
+                                                                <span
+                                                                    style="color: var(--text-main); background: var(--warning-bg); padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 0.9em;">REVIEW</span>
+                                                                <% } else if(payment.status==='Declined' ) { %>
+                                                                    <span class="text-error"
+                                                                        style="font-weight: bold; font-size: 0.9em;">DECLINED</span>
+                                                                    <% } else { %>
+                                                                        <span class="text-muted"
+                                                                            style="font-size: 0.9em;">Unpaid</span>
+                                                                        <% } %>
+                                                    </td>
+                                                    <td>
+                                                        <% if (payment.screenshotUrl) { %>
+                                                            <a href="/<%= payment.screenshotUrl %>" target="_blank"
+                                                                style="color: var(--text-main); text-decoration: underline; font-size: 0.9em;">
+                                                                View Proof
+                                                            </a>
+                                                            <% } else { %>
+                                                                <span class="text-muted"
+                                                                    style="font-size: 0.9em;">-</span>
+                                                                <% } %>
+                                                    </td>
+                                                    <td style="padding-right: 24px;">
+                                                        <% if (payment.status !=='Paid' ) { %>
+                                                            <div style="display: flex; gap: 8px; align-items: center;">
+                                                                <button
+                                                                    onclick="processPayment('<%= bill._id %>', '<%= payment.user._id %>', 'approve')"
+                                                                    class="btn"
+                                                                    style="padding: 6px 10px; background: var(--success); color: white; border-radius: 6px;">✓</button>
+                                                                <button
+                                                                    onclick="processPayment('<%= bill._id %>', '<%= payment.user._id %>', 'decline')"
+                                                                    class="btn"
+                                                                    style="padding: 6px 10px; background: var(--error); color: white; border-radius: 6px;">✕</button>
+                                                            </div>
+                                                            <% } else { %>
+                                                                <span class="text-success">✓ Done</span>
+                                                                <% } %>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <% }) %>
+                                <% } else { %>
+                                    <div class="card" style="text-align: center; padding: 60px;">
+                                        <p class="text-muted">No active bills found.</p>
+                                        <a href="/admin/dashboard" class="btn btn-primary"
+                                            style="margin-top: 10px;">Create First Bill</a>
+                                    </div>
+                                    <% } %>
+
+            </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+
+        async function processPayment(billId, userId, action) {
+            const isApprove = action === 'approve';
+            const title = isApprove ? 'Approve Payment?' : 'Decline Payment?';
+            const text = isApprove ? "You can add a note for the user (optional):" : "You must provide a reason for declining:";
+            const confirmBtnText = isApprove ? 'Yes, Approve' : 'Yes, Decline';
+            const confirmBtnColor = isApprove ? 'var(--success)' : 'var(--error)';
+            const inputValidator = isApprove ? null : (value) => {
+                if (!value) {
+                    return 'You need to write a reason for declining!'
+                }
+            };
+
+            if (typeof Swal !== 'undefined') {
+                const result = await Swal.fire({
+                    title: title,
+                    text: text,
+                    input: 'text',
+                    inputPlaceholder: 'Enter message...',
+                    showCancelButton: true,
+                    confirmButtonText: confirmBtnText,
+                    confirmButtonColor: confirmBtnColor,
+                    cancelButtonColor: 'var(--text-muted)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text-main)',
+                    inputValidator: inputValidator
+                });
+
+                if (!result.isConfirmed) return;
+
+                const message = result.value;
+                submitPaymentAction(billId, userId, action, message);
+            } else {
+                // Fallback
+                if (!confirm(title)) return;
+                const message = prompt("Enter message for user:");
+                submitPaymentAction(billId, userId, action, message);
+            }
+        }
+
+        async function submitPaymentAction(billId, userId, action, message) {
+            try {
+                const endpoint = action === 'approve' ? 'approve' : 'decline';
+                const res = await fetch(`/api/bills/${billId}/${endpoint}/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ message })
+                });
+
+                if (res.ok) {
+                    if (typeof Swal !== 'undefined') {
+                        await Swal.fire({
+                            title: 'Success',
+                            text: `Payment ${action}d successfully.`,
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            background: 'var(--bg-card)',
+                            color: 'var(--text-main)'
+                        });
+                    }
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    alert('Action failed');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        async function sendReminders(billId) {
+            if (typeof Swal !== 'undefined') {
+                const result = await Swal.fire({
+                    title: 'Send Reminders?',
+                    text: "This will email all users who haven't paid yet.",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Send Emails',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text-main)'
+                });
+                if (!result.isConfirmed) return;
+            } else {
+                if (!confirm('Send reminder emails?')) return;
+            }
+
+            try {
+                const res = await fetch(`/api/bills/${billId}/remind`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            title: 'Sent!',
+                            text: 'Reminders have been sent.',
+                            icon: 'success',
+                            background: 'var(--bg-card)',
+                            color: 'var(--text-main)'
+                        });
+                    } else {
+                        alert('Reminders sent!');
+                    }
+                }
+            } catch (e) { console.error(e); }
+        }
+        async function deleteBill(billId) {
+            if (typeof Swal !== 'undefined') {
+                const result = await Swal.fire({
+                    title: 'Delete Bill?',
+                    text: "This action cannot be undone. All payment records for this bill will be removed.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Delete It',
+                    confirmButtonColor: 'var(--error)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--text-main)'
+                });
+
+                if (!result.isConfirmed) return;
+            } else {
+                if (!confirm('Are you sure you want to delete this bill? This cannot be undone.')) return;
+            }
+
+            try {
+                const res = await fetch(`/api/bills/${billId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (res.ok) {
+                    if (typeof Swal !== 'undefined') {
+                        await Swal.fire({
+                            title: 'Deleted!',
+                            text: 'Bill has been removed.',
+                            icon: 'success',
+                            background: 'var(--bg-card)',
+                            color: 'var(--text-main)'
+                        });
+                    } else {
+                        alert('Bill Deleted');
+                    }
+                    window.location.reload();
+                } else {
+                    alert('Failed to delete bill');
+                }
+            } catch (e) { console.error(e); }
+        }
+    </script>
+
+    <%- include('../../partials/footer') %>

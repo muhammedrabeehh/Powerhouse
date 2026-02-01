@@ -1,0 +1,286 @@
+<%- include('../partials/header') %>
+
+    <div class="layout-wrapper">
+        <%- include('../partials/sidebar', { user: user, page: page }) %>
+
+            <div class="main-content">
+                <header
+                    style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h1 style="margin-bottom: 10px;">Pending Bills</h1>
+                        <p class="text-muted">Requires your attention.</p>
+                    </div>
+                    <button onclick="window.location.reload()" class="btn btn-secondary"
+                        style="padding: 8px 12px; font-size: 0.9em; display: flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Refresh
+                    </button>
+                </header>
+
+                <% if (bills.length> 0) { %>
+                    <div style="display: flex; flex-direction: column; gap: 24px;">
+                        <% bills.forEach(bill=> { %>
+                            <div class="card"
+                                style="padding: 0; overflow: hidden; border-left: 4px solid <%= bill.myPayment.status === 'Pending_Approval' ? 'var(--text-secondary)' : 'var(--error)' %>;">
+                                <div style="padding: 32px;">
+                                    <div class="flex" style="justify-content: space-between; align-items: flex-start;">
+                                        <div>
+                                            <h3 style="margin-bottom: 8px;">
+                                                <%= bill.description %>
+                                            </h3>
+                                            <p class="text-muted" style="margin: 0; font-size: 0.9em;">
+                                                Issued on: <%= new Date(bill.date).toLocaleDateString() %>
+                                            </p>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div
+                                                style="font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 4px;">
+                                                Your Share</div>
+                                            <h3 style="margin: 0; font-size: 1.8em; color: var(--text-main);">₹<%=
+                                                    bill.individualShare %>
+                                            </h3>
+                                            <div style="font-size: 0.85em; color: var(--text-muted); margin-top: 4px;">
+                                                Total Bill: ₹<%= bill.totalAmount %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <% if (bill.myPayment.adminMessage) { %>
+                                    <div
+                                        style="background: rgba(244, 63, 94, 0.1); padding: 16px 32px; border-top: 1px solid rgba(244, 63, 94, 0.2); border-bottom: 1px solid rgba(244, 63, 94, 0.2);">
+                                        <div style="display: flex; align-items: center; color: var(--error);">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                style="width: 20px; height: 20px; margin-right: 12px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                            </svg>
+                                            <span style="font-weight: 500;">Admin Message:</span>
+                                            <span style="margin-left: 8px; font-style: italic;">"<%=
+                                                    bill.myPayment.adminMessage %>"</span>
+                                        </div>
+                                    </div>
+                                    <% } %>
+
+                                        <div
+                                            style="background: var(--bg-input); padding: 24px 32px; border-top: 1px solid var(--border-color);">
+                                            <div class="flex flex-row-mobile"
+                                                style="justify-content: space-between; align-items: center; gap: 32px;">
+                                                <!-- Status -->
+                                                <div>
+                                                    <div
+                                                        style="font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 8px;">
+                                                        Current Status</div>
+                                                    <div class="<%= bill.myPayment.status === 'Pending_Approval' ? 'text-muted' : 'text-error' %>"
+                                                        style="font-weight: 600; font-size: 1.1em; display: flex; align-items: center;">
+                                                        <% if (bill.myPayment.status==='Pending_Approval' ) { %>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                viewBox="0 0 24 24" stroke="currentColor"
+                                                                style="width: 20px; margin-right: 8px;">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            Verifying Payment...
+                                                            <% } else { %>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                                    viewBox="0 0 24 24" stroke="currentColor"
+                                                                    style="width: 20px; margin-right: 8px;">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2"
+                                                                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                                </svg>
+                                                                <%= bill.myPayment.status==='Declined'
+                                                                    ? 'Payment Declined' : 'Payment Required' %>
+                                                                    <% } %>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Action Form -->
+                                                <% if (bill.myPayment.status==='Unpaid' ||
+                                                    bill.myPayment.status==='Declined' ) { %>
+                                                    <div style="flex: 1; min-width: 300px;">
+                                                        <div style="margin-bottom: 20px;">
+                                                            <h4
+                                                                style="margin-bottom: 10px; font-size: 0.9em; text-transform: uppercase; color: var(--text-muted);">
+                                                                Payment Options</h4>
+
+                                                            <% const activeUpi=bill.upiId || upiId; %>
+
+                                                                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                                                    <!-- Deep Link Button -->
+                                                                    <a href="upi://pay?pa=<%= activeUpi %>&pn=PowerhouseAdmin&am=<%= bill.individualShare %>&tn=<%= bill.description %>"
+                                                                        class="btn"
+                                                                        style="padding: 8px 16px; font-size: 0.9em; background: var(--text-main); color: var(--bg-body); display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center;">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            width="16" height="16" viewBox="0 0 24 24"
+                                                                            fill="none" stroke="currentColor"
+                                                                            stroke-width="2" stroke-linecap="round"
+                                                                            stroke-linejoin="round">
+                                                                            <rect x="2" y="5" width="20" height="14"
+                                                                                rx="2" />
+                                                                            <line x1="2" y1="10" x2="22" y2="10" />
+                                                                        </svg>
+                                                                        Pay App
+                                                                    </a>
+
+                                                                    <!-- Show QR Button -->
+                                                                    <button onclick="toggleQR('<%= bill._id %>')"
+                                                                        class="btn btn-secondary"
+                                                                        style="padding: 8px 16px; font-size: 0.9em; flex: 1; display: flex; align-items: center; justify-content: center;">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            width="16" height="16" fill="none"
+                                                                            viewBox="0 0 24 24" stroke="currentColor"
+                                                                            style="display: inline; vertical-align: middle; margin-right: 4px;">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round" stroke-width="2"
+                                                                                d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                                                        </svg>
+                                                                        Show QR
+                                                                    </button>
+                                                                </div>
+
+                                                                <!-- Hidden QR Container -->
+                                                                <div id="qr-container-<%= bill._id %>"
+                                                                    style="display: none; margin-top: 15px; animation: fadeIn 0.3s ease;">
+                                                                    <div
+                                                                        style="background: #fff; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; align-items: center; gap: 15px;">
+
+                                                                        <% const
+                                                                            qrUpiLink=`upi://pay?pa=${activeUpi}&pn=PowerhouseAdmin&am=${bill.individualShare}&tn=${encodeURIComponent(bill.description)}`;
+                                                                            const
+                                                                            qrApiUrl=`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrUpiLink)}`;
+                                                                            %>
+
+                                                                            <div style="width: 120px; height: 120px;">
+                                                                                <img src="<%= qrApiUrl %>" alt="QR Code"
+                                                                                    style="width: 100%; height: 100%; object-fit: contain;">
+                                                                            </div>
+
+                                                                            <div
+                                                                                style="font-size: 0.85em; color: #000;">
+                                                                                <strong>₹<%= bill.individualShare %>
+                                                                                </strong><br>
+                                                                                <span
+                                                                                    style="color: #666; font-size: 0.8em; word-break: break-all;">
+                                                                                    <%= activeUpi %>
+                                                                                </span>
+                                                                            </div>
+                                                                    </div>
+                                                                </div>
+                                                        </div>
+
+                                                        <form onsubmit="uploadProof(event, '<%= bill._id %>')">
+                                                            <label for="file-<%= bill._id %>"
+                                                                style="cursor: pointer; display: block; margin-bottom: 8px;">
+                                                                <div
+                                                                    style="padding: 12px; background: var(--bg-body); border: 1px dashed var(--border-color); border-radius: 8px; text-align: center; color: var(--text-secondary); font-size: 0.9em; transition: all 0.2s;">
+                                                                    Tap to upload screenshot
+                                                                </div>
+                                                            </label>
+                                                            <input type="file" id="file-<%= bill._id %>"
+                                                                accept="image/*" required style="display: none;"
+                                                                onchange="updateFileName(this)">
+                                                            <button type="submit" class="btn btn-primary"
+                                                                style="width: 100%;">
+                                                                <%= bill.myPayment.status==='Declined'
+                                                                    ? 'Re-Upload Proof' : 'Upload Payment Proof' %>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                    <% } %>
+                                            </div>
+                                        </div>
+                            </div>
+                            <% }) %>
+                    </div>
+                    <% } else { %>
+                        <div class="card" style="text-align: center; padding: 80px 40px;">
+                            <div
+                                style="width: 80px; height: 80px; background: var(--bg-input); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; color: var(--success);">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" style="width: 40px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h3>All Caught Up!</h3>
+                            <p class="text-muted" style="max-width: 400px; margin: 0 auto 30px;">You have no pending
+                                bills at the moment. Great job!</p>
+                            <a href="/user/bills" class="btn btn-secondary">View Billing History</a>
+                        </div>
+                        <% } %>
+            </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = '/user/login';
+
+        // Simple Toggle
+        window.toggleQR = function (billId) {
+            const el = document.getElementById(`qr-container-${billId}`);
+            if (el) {
+                el.style.display = (el.style.display === 'none' || el.style.display === '') ? 'block' : 'none';
+            }
+        };
+
+
+        window.updateFileName = function (input) {
+            const label = input.previousElementSibling.querySelector('div');
+            if (input.files && input.files[0]) {
+                label.textContent = input.files[0].name;
+                label.style.borderColor = 'var(--text-main)';
+                label.style.color = 'var(--text-main)';
+            }
+        };
+
+        window.uploadProof = async function (e, billId) {
+            e.preventDefault();
+            const fileInput = document.getElementById(`file-${billId}`);
+            const formData = new FormData();
+            formData.append('paymentProof', fileInput.files[0]);
+
+            try {
+                const btn = e.target.querySelector('button');
+                const originalText = btn.textContent;
+                btn.textContent = 'Uploading...';
+                btn.disabled = true;
+
+                const res = await fetch(`/api/bills/${billId}/pay`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    if (typeof Swal !== 'undefined') {
+                        await Swal.fire({
+                            title: 'Sent!',
+                            text: 'Proof uploaded successfully.',
+                            icon: 'success',
+                            background: 'var(--bg-card)',
+                            color: 'var(--text-main)'
+                        });
+                    } else {
+                        alert('Proof Uploaded!');
+                    }
+                    window.location.reload();
+                } else {
+                    alert('Upload Failed');
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error uploading proof');
+            }
+        };
+    </script>
+
+    <%- include('../partials/footer') %>

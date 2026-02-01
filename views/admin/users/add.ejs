@@ -1,0 +1,83 @@
+<%- include('../../partials/header') %>
+
+    <div class="layout-wrapper">
+        <%- include('../../partials/sidebar', { page: 'users' , user: user }) %>
+
+            <div class="main-content">
+                <h1>Roommate Management</h1>
+                <p class="text-muted" style="margin-bottom: 20px;">Manage access for your housemates.</p>
+
+                <%- include('../../partials/admin_user_tabs', { page: 'add_user' }) %>
+
+                    <!-- Add User Form -->
+                    <div class="card" style="max-width: 500px;">
+                        <h3>👤 Add New Member</h3>
+                        <form id="createUserForm" class="flex flex-col">
+                            <div>
+                                <label>Full Name</label>
+                                <input type="text" id="userName" placeholder="e.g. John Doe" required>
+                            </div>
+                            <div>
+                                <label>Email Address</label>
+                                <input type="email" id="userEmail" placeholder="e.g. john@example.com" required>
+                            </div>
+                            <div>
+                                <label>Password</label>
+                                <input type="password" id="userPassword" placeholder="Min 6 characters" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="margin-top: 10px; width: 100%;">Create
+                                Account</button>
+                        </form>
+                    </div>
+
+            </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+
+        document.getElementById('createUserForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const password = document.getElementById('userPassword').value;
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Creating...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/auth/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, email, password, role: 'user' })
+                });
+
+                if (res.ok) {
+                    if (typeof Swal !== 'undefined') {
+                        await Swal.fire('Success', 'User Account Created!', 'success');
+                    } else {
+                        alert('User Created!');
+                    }
+                    document.getElementById('createUserForm').reset();
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                } else {
+                    const data = await res.json();
+                    alert(data.message || 'Error creating user');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error network');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+
+    <%- include('../../partials/footer') %>

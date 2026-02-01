@@ -1,0 +1,35 @@
+<!-- Admin Bill Tabs -->
+<div class="tabs-container" style="margin-bottom: 30px; border-bottom: 1px solid var(--border-color);">
+    <div style="display: flex; gap: 20px;">
+        <a href="/admin/dashboard" class="tab-link <%= page === 'create' ? 'active' : '' %>">
+            Create Bill
+        </a>
+        <a href="/admin/bills/active" class="tab-link <%= page === 'active' ? 'active' : '' %>">
+            Active Bills
+        </a>
+        <a href="/admin/bills/completed" class="tab-link <%= page === 'completed' ? 'active' : '' %>">
+            Completed Bills
+        </a>
+    </div>
+</div>
+
+<style>
+    .tab-link {
+        padding: 12px 4px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+        position: relative;
+    }
+
+    .tab-link:hover {
+        color: var(--text-main);
+    }
+
+    .tab-link.active {
+        color: var(--text-main);
+        border-bottom-color: var(--text-main);
+    }
+</style>

@@ -1,0 +1,102 @@
+<%- include('../../partials/header') %>
+
+    <div class="layout-wrapper">
+        <%- include('../../partials/sidebar', { page: 'bills' , user: user }) %>
+
+            <div class="main-content">
+                <h1>Bill Management</h1>
+                <p class="text-muted" style="margin-bottom: 20px;">Manage house expenses.</p>
+
+                <%- include('../../partials/admin_tabs', { page: 'create' }) %>
+
+                    <!-- Create Bill Section -->
+                    <div class="card" style="max-width: 600px;">
+                        <h3 style="margin-top: 0;">📝 Post New Bill</h3>
+                        <p class="text-muted" style="margin-bottom: 30px;">This will automatically split the amount
+                            among all active members and notify them.</p>
+
+                        <form id="createBillForm" class="flex flex-col">
+                            <div>
+                                <label>Description</label>
+                                <input type="text" id="billDesc" placeholder="e.g. October Rent + Electricity" required>
+                            </div>
+                            <div>
+                                <label>Total Amount (₹)</label>
+                                <input type="number" id="billTotal" placeholder="e.g. 15000" required>
+                            </div>
+                            <div>
+                                <label>UPI ID (Required)</label>
+                                <input type="text" id="billUpi" value="<%= defaultUpi %>" required>
+                                <p class="text-muted" style="font-size: 0.8em; margin-top: 4px;">Payments will be
+                                    directed here. Users will see a QR code generated from this ID.</p>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="margin-top: 10px; width: 100%;">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" style="width: 20px; height: 20px; margin-right: 8px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                </svg>
+                                Split & Notify Roommates
+                            </button>
+                        </form>
+                    </div>
+
+            </div>
+    </div>
+
+    <div id="qrPreviewModal"
+        style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+            <h4>QR Preview</h4>
+            <div id="adminQrPreview" style="margin: 20px auto;"></div>
+            <button onclick="document.getElementById('qrPreviewModal').style.display='none'"
+                class="btn btn-secondary">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+
+
+        document.getElementById('createBillForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const description = document.getElementById('billDesc').value;
+            const totalAmount = document.getElementById('billTotal').value;
+            const upiId = document.getElementById('billUpi').value;
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'Processing...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/bills', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ description, totalAmount, upiId })
+                });
+
+                if (res.ok) {
+                    if (typeof Swal !== 'undefined') {
+                        await Swal.fire('Success', 'Bill Posted & Emails Sent!', 'success');
+                    } else {
+                        alert('Bill Created!');
+                    }
+                    window.location.href = '/admin/bills/active'; // Redirect to active list
+                } else {
+                    alert('Error creating bill');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error(e);
+                alert('Error network');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+    </script>
+
+    <%- include('../../partials/footer') %>

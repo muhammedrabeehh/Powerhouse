@@ -1,0 +1,65 @@
+<%- include('../../partials/header') %>
+
+    <div class="layout-wrapper">
+        <%- include('../../partials/sidebar', { page: 'bills' , user: user }) %>
+
+            <div class="main-content">
+                <h1>Bill Management</h1>
+                <p class="text-muted" style="margin-bottom: 20px;">Manage house expenses.</p>
+
+                <%- include('../../partials/admin_tabs', { page: 'completed' }) %>
+
+                    <!-- Completed Bills List -->
+                    <% if (bills && bills.length> 0) { %>
+                        <div class="card" style="padding: 0; overflow: hidden;">
+                            <table style="margin: 0;">
+                                <thead style="background: var(--bg-input);">
+                                    <tr>
+                                        <th style="padding-left: 24px;">Date</th>
+                                        <th>Description</th>
+                                        <th>Total Amount</th>
+                                        <th>Participants</th>
+                                        <th style="padding-right: 24px;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% bills.forEach(bill=> { %>
+                                        <tr>
+                                            <td class="text-muted" style="padding-left: 24px;">
+                                                <%= new Date(bill.date).toLocaleDateString() %>
+                                            </td>
+                                            <td style="font-weight: 500; color: var(--text-main);">
+                                                <%= bill.description %>
+                                            </td>
+                                            <td>₹<%= bill.totalAmount %>
+                                            </td>
+                                            <td>
+                                                <%= bill.payments.length %>
+                                            </td>
+                                            <td style="padding-right: 24px;">
+                                                <span class="text-success"
+                                                    style="font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor" style="width: 16px;">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    Settled
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <% } else { %>
+                            <div class="card" style="text-align: center; padding: 60px;">
+                                <p class="text-muted">No completed bills yet.</p>
+                            </div>
+                            <% } %>
+
+            </div>
+    </div>
+
+    <%- include('../../partials/footer') %>

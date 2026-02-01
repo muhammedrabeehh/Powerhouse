@@ -1,0 +1,230 @@
+<%- include('../partials/header') %>
+
+    <div class="layout-wrapper">
+        <!-- User Sidebar -->
+        <div class="sidebar">
+            <div style="margin-bottom: 40px; padding-left: 10px;">
+                <h2 style="color: #fff; margin: 0;">⚡ Powerhouse</h2>
+                <p class="text-muted" style="margin: 0; font-size: 0.9em;">Member Portal</p>
+            </div>
+
+            <!-- Profile Section -->
+            <div
+                style="text-align: center; margin-bottom: 40px; padding: 20px; background: #1e293b; border-radius: 12px; border: 1px solid var(--border);">
+                <div
+                    style="width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 2em; font-weight: bold; color: #fff;">
+                    <%= user.name.charAt(0).toUpperCase() %>
+                </div>
+                <h3 style="margin-bottom: 5px; font-size: 1.1em;">
+                    <%= user.name %>
+                </h3>
+                <p class="text-muted" style="font-size: 0.85em; margin: 0; word-break: break-all;">
+                    <%= user.email %>
+                </p>
+            </div>
+
+            <a href="/user/dashboard" class="nav-link active">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Dashboard
+            </a>
+
+            <div style="flex: 1;"></div>
+
+            <a href="#" onclick="logout(event)" class="nav-link" style="color: var(--error);">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Logout
+            </a>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+
+            <!-- Pending Bills Section -->
+            <h2 style="margin-bottom: 20px; color: #fff;">Due Bills</h2>
+            <% const dueBills=bills.filter(b=> {
+                const myPayment = b.payments.find(p => p.isMe);
+                return myPayment && (myPayment.status === 'Unpaid' || myPayment.status === 'Pending_Approval' ||
+                myPayment.status === 'Declined');
+                });
+
+                const historyBills = bills.filter(b => {
+                const myPayment = b.payments.find(p => p.isMe);
+                return myPayment && myPayment.status === 'Paid';
+                });
+                %>
+
+                <% if (dueBills.length> 0) { %>
+                    <% dueBills.forEach(bill=> { %>
+                        <% const myPayment=bill.payments.find(p=> p.isMe); %>
+                            <div class="card"
+                                style="border-left: 4px solid <%= myPayment.status === 'Pending_Approval' ? 'var(--primary)' : 'var(--error)' %>;">
+                                <div class="flex" style="justify-content: space-between;">
+                                    <div>
+                                        <h3>
+                                            <%= bill.description %>
+                                        </h3>
+                                        <p class="text-muted">
+                                            <%= new Date(bill.date).toLocaleDateString() %>
+                                        </p>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <h3 style="color: var(--primary);">₹<%= bill.individualShare %>
+                                        </h3>
+                                        <p class="text-muted" style="font-size: 0.9em;">Total: ₹<%= bill.totalAmount %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <hr style="border-color: var(--border); margin: 15px 0;">
+
+                                <div class="flex" style="justify-content: space-between; align-items: center;">
+                                    <div style="flex: 1;">
+                                        <% if (myPayment.adminMessage) { %>
+                                            <div
+                                                style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 4px; margin-bottom: 10px; border-left: 2px solid var(--secondary);">
+                                                <small class="text-muted"
+                                                    style="display: block; font-size: 0.7em; text-transform: uppercase;">Message
+                                                    from Admin</small>
+                                                <span style="font-size: 0.9em; font-style: italic;">"<%=
+                                                        myPayment.adminMessage %>"</span>
+                                            </div>
+                                            <% } %>
+
+                                                <span class="text-muted"
+                                                    style="font-size: 0.9em; display: block; margin-bottom: 4px;">Status</span>
+                                                <span
+                                                    class="<%= myPayment.status === 'Paid' ? 'text-success' : (myPayment.status === 'Pending_Approval' ? 'text-main' : 'text-error') %>"
+                                                    style="font-weight: 600; font-size: 1.1em;">
+                                                    <%= myPayment.status.replace('_', ' ' ) %>
+                                                </span>
+                                    </div>
+
+                                    <% if (myPayment.status==='Unpaid' || myPayment.status==='Declined' ) { %>
+                                        <div style="flex: 1; max-width: 400px; margin-left: 20px;">
+                                            <form onsubmit="uploadProof(event, '<%= bill._id %>')" class="flex"
+                                                style="align-items: center; background: #2d3748; padding: 10px; border-radius: 8px;">
+                                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=upi://pay?pa=admin@upi&pn=PowerhouseAdmin&am=<%= bill.individualShare %>"
+                                                    style="border-radius: 4px; margin-right: 15px;">
+                                                <div style="flex: 1;">
+                                                    <input type="file" id="file-<%= bill._id %>" accept="image/*"
+                                                        required
+                                                        style="margin-bottom: 5px; font-size: 0.8em; width: 100%;">
+                                                    <button type="submit" class="btn btn-primary"
+                                                        style="width: 100%; padding: 6px; font-size: 0.9em;">
+                                                        <%= myPayment.status==='Declined' ? 'Re-Submit Proof'
+                                                            : 'Submit Proof' %>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <% } else { %>
+                                            <div class="text-muted" style="font-style: italic;">Proof uploaded. Waiting
+                                                for admin approval.</div>
+                                            <% } %>
+                                </div>
+                            </div>
+                            <% }) %>
+                                <% } else { %>
+                                    <div class="card"
+                                        style="text-align: center; padding: 40px; color: var(--secondary);">
+                                        <h3>All caught up! 🎉</h3>
+                                        <p class="text-muted">You have no pending bills.</p>
+                                    </div>
+                                    <% } %>
+
+                                        <!-- History Section -->
+                                        <h2 style="margin: 40px 0 20px; color: #fff;">Payment History</h2>
+                                        <% if (historyBills.length> 0) { %>
+                                            <div class="card">
+                                                <table>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Date</th>
+                                                            <th>Description</th>
+                                                            <th>Amount</th>
+                                                            <th>Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <% historyBills.forEach(bill=> { %>
+                                                            <% const myPayment=bill.payments.find(p=> p.isMe); %>
+                                                                <tr>
+                                                                    <td class="text-muted">
+                                                                        <%= new Date(bill.date).toLocaleDateString() %>
+                                                                    </td>
+                                                                    <td style="font-weight: 500;">
+                                                                        <%= bill.description %>
+                                                                    </td>
+                                                                    <td>₹<%= bill.individualShare %>
+                                                                    </td>
+                                                                    <td><span class="text-success"
+                                                                            style="display: flex; align-items: center; gap: 5px;"><svg
+                                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                                style="width: 16px;" fill="none"
+                                                                                viewBox="0 0 24 24"
+                                                                                stroke="currentColor">
+                                                                                <path stroke-linecap="round"
+                                                                                    stroke-linejoin="round"
+                                                                                    stroke-width="2"
+                                                                                    d="M5 13l4 4L19 7" />
+                                                                            </svg> Paid</span></td>
+                                                                </tr>
+                                                                <% }) %>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <% } else { %>
+                                                <p class="text-muted">No history yet.</p>
+                                                <% } %>
+
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+
+        async function logout(e) {
+            if (e) e.preventDefault();
+            try {
+                await fetch('/api/auth/logout', { method: 'GET' });
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = '/user/login';
+            } catch (err) {
+                console.error(err);
+                window.location.href = '/user/login';
+            }
+        }
+
+        if (!token) window.location.href = '/user/login';
+
+        async function uploadProof(e, billId) {
+            e.preventDefault();
+            const fileInput = document.getElementById(`file-${billId}`);
+            const formData = new FormData();
+            formData.append('paymentProof', fileInput.files[0]);
+
+            try {
+                const res = await fetch(`/api/bills/${billId}/pay`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+
+                if (res.ok) {
+                    alert('Proof Uploaded!');
+                    window.location.reload();
+                } else {
+                    alert('Upload Failed');
+                }
+            } catch (err) { console.error(err); }
+        }
+    </script>
+
+    <%- include('../partials/footer') %>

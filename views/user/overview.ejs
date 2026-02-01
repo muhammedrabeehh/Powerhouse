@@ -1,0 +1,155 @@
+<%- include('../partials/header') %>
+
+    <div class="layout-wrapper">
+        <%- include('../partials/sidebar', { user: user, page: page }) %>
+
+            <div class="main-content">
+                <header
+                    style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div>
+                        <h1 style="margin-bottom: 10px;">Overview</h1>
+                        <p class="text-muted">Welcome back, <%= user.name %>.</p>
+                    </div>
+                    <button onclick="window.location.reload()" class="btn btn-secondary"
+                        style="padding: 8px 12px; font-size: 0.9em; display: flex; align-items: center; gap: 6px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Refresh
+                    </button>
+                </header>
+
+                <!-- Stats Grid -->
+                <div class="flex flex-row-mobile" style="flex-wrap: wrap; margin-bottom: 40px; gap: 24px;">
+                    <!-- Total Paid -->
+                    <div class="card"
+                        style="flex: 1; min-width: 250px; border: 1px solid var(--border-color); border-left: 4px solid var(--success); padding: 32px;">
+                        <div style="display: flex; align-items: flex-start; justify-content: space-between;">
+                            <div>
+                                <p class="text-muted" style="margin-bottom: 8px; font-size: 0.9em; font-weight: 500;">
+                                    Total Paid</p>
+                                <h2 style="margin: 0; font-size: 2.5em; letter-spacing: -1px;">₹<%=
+                                        stats.totalPaid.toLocaleString() %>
+                                </h2>
+                            </div>
+                            <div
+                                style="width: 48px; height: 48px; background: rgba(16, 185, 129, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--success);">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" style="width: 24px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Pending -->
+                    <div class="card"
+                        style="flex: 1; min-width: 250px; border: 1px solid var(--border-color); border-left: 4px solid var(--error); padding: 32px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div
+                            style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px;">
+                            <div>
+                                <p class="text-muted" style="margin-bottom: 8px; font-size: 0.9em; font-weight: 500;">
+                                    Pending Dues</p>
+                                <h2 style="margin: 0; font-size: 2.5em; letter-spacing: -1px;">₹<%=
+                                        stats.totalPending.toLocaleString() %>
+                                </h2>
+                            </div>
+                            <div
+                                style="width: 48px; height: 48px; background: rgba(244, 63, 94, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--error);">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor" style="width: 24px;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <% if (stats.totalPending> 0) { %>
+                            <div style="margin-top: auto; padding-top: 20px;">
+                                <a href="/user/pending" class="btn btn-primary"
+                                    style="padding: 8px 20px; font-size: 0.85em; border-radius: 50px; width: auto; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.1);"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(244, 63, 94, 0.3)';"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.1)';">
+                                    Resolve Pending Bills
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" style="width: 14px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </a>
+                            </div>
+                            <% } else { %>
+                                <div class="text-success"
+                                    style="font-weight: 500; font-size: 0.9em; display: flex; align-items: center;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" style="width: 16px; margin-right: 6px;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    All Caught Up
+                                </div>
+                                <% } %>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+                    <h3 style="margin: 0;">Recent Activity</h3>
+                    <a href="/user/bills" class="text-muted"
+                        style="text-decoration: none; font-size: 0.9em; display: flex; align-items: center; transition: color 0.2s;">
+                        View Full History
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                            style="width: 16px; margin-left: 4px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </a>
+                </div>
+
+                <% if (recentBills.length> 0) { %>
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <table style="margin: 0;">
+                            <thead style="background: var(--bg-input);">
+                                <tr>
+                                    <th style="padding-left: 32px;">Date</th>
+                                    <th>Description</th>
+                                    <th>Amount</th>
+                                    <th style="padding-right: 32px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% recentBills.forEach(bill=> { %>
+                                    <tr style="transition: background 0.2s;">
+                                        <td class="text-muted" style="padding-left: 32px;">
+                                            <%= new Date(bill.date).toLocaleDateString() %>
+                                        </td>
+                                        <td style="font-weight: 500; color: var(--text-main);">
+                                            <%= bill.description %>
+                                        </td>
+                                        <td style="font-family: monospace; font-size: 1.1em;">₹<%= bill.individualShare
+                                                %>
+                                        </td>
+                                        <td style="padding-right: 32px;">
+                                            <span
+                                                class="<%= bill.myPayment.status === 'Paid' ? 'text-success' : 'text-error' %>"
+                                                style="font-weight: 600; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.05em;">
+                                                <%= bill.myPayment.status.replace('_', ' ' ) %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                    <% } else { %>
+                        <div class="card" style="padding: 40px; text-align: center;">
+                            <p class="text-muted">No recent activity found.</p>
+                        </div>
+                        <% } %>
+
+            </div>
+    </div>
+
+    <%- include('../partials/footer') %>

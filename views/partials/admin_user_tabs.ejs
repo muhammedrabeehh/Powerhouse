@@ -1,0 +1,32 @@
+<!-- Admin User Tabs -->
+<div class="tabs-container" style="margin-bottom: 30px; border-bottom: 1px solid var(--border-color);">
+    <div style="display: flex; gap: 20px;">
+        <a href="/admin/users/add" class="tab-link <%= page === 'add_user' ? 'active' : '' %>">
+            Add Roommate
+        </a>
+        <a href="/admin/users/manage" class="tab-link <%= page === 'manage_users' ? 'active' : '' %>">
+            Manage Roommates
+        </a>
+    </div>
+</div>
+
+<style>
+    .tab-link {
+        padding: 12px 4px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+        position: relative;
+    }
+
+    .tab-link:hover {
+        color: var(--text-main);
+    }
+
+    .tab-link.active {
+        color: var(--text-main);
+        border-bottom-color: var(--text-main);
+    }
+</style>

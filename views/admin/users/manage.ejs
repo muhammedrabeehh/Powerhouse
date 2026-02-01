@@ -1,0 +1,95 @@
+<%- include('../../partials/header') %>
+
+<div class="layout-wrapper">
+    <%- include('../../partials/sidebar', { page: 'users', user: user }) %>
+
+    <div class="main-content">
+        <h1>Roommate Management</h1>
+        <p class="text-muted" style="margin-bottom: 20px;">Manage access for your housemates.</p>
+        
+        <%- include('../../partials/admin_user_tabs', { page: 'manage_users' }) %>
+
+        <!-- User List -->
+        <div class="card" style="padding: 0; overflow: hidden;">
+            <table style="margin: 0;">
+                <thead style="background: var(--bg-input);">
+                    <tr>
+                        <th style="padding-left: 24px;">Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th style="padding-right: 24px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if(users && users.length > 0) { %>
+                        <% users.forEach(u => { %>
+                            <tr>
+                                <td style="padding-left: 24px; font-weight: 500;">
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <div style="width: 32px; height: 32px; background: var(--bg-input); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; color: var(--text-muted); border: 1px solid var(--border-color);">
+                                            <%= u.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <%= u.name %>
+                                    </div>
+                                </td>
+                                <td class="text-muted"><%= u.email %></td>
+                                <td>
+                                    <span class="<%= u.status === 'active' ? 'text-success' : 'text-error' %>" style="font-size: 0.9em; font-weight: 600;">
+                                        <%= u.status.charAt(0).toUpperCase() + u.status.slice(1) %>
+                                    </span>
+                                </td>
+                                <td style="padding-right: 24px;">
+                                    <button onclick="removeUser('<%= u._id %>')" class="btn" style="padding: 6px 12px; background: rgba(244, 63, 94, 0.1); color: var(--error); border: 1px solid var(--error); font-size: 0.85em;">
+                                        Remove
+                                    </button>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="4" class="text-muted" style="text-align: center; padding: 40px;">No roommates found.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const token = localStorage.getItem('token');
+    
+    async function removeUser(userId) {
+        if (typeof Swal !== 'undefined') {
+            const result = await Swal.fire({
+                title: 'Remove User?',
+                text: "This will revoke their access immediately.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, Remove',
+                confirmButtonColor: 'var(--error)',
+                background: 'var(--bg-card)',
+                color: 'var(--text-main)'
+            });
+            if (!result.isConfirmed) return;
+        } else {
+             if (!confirm('Are you sure you want to remove this user?')) return;
+        }
+
+        try {
+            const res = await fetch(`/api/auth/users/${userId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to remove user');
+            }
+        } catch (e) { console.error(e); }
+    }
+</script>
+
+<%- include('../../partials/footer') %>

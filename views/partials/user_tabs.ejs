@@ -1,0 +1,49 @@
+<!-- Dashboard Tabs -->
+<div class="tabs-container" style="margin-bottom: 30px; border-bottom: 1px solid var(--border-color);">
+    <div style="display: flex; gap: 20px;">
+        <a href="/user/dashboard" class="tab-link <%= page === 'dashboard' ? 'active' : '' %>">
+            Overview
+        </a>
+        <a href="/user/pending" class="tab-link <%= page === 'pending' ? 'active' : '' %>">
+            Pending Bills
+            <% if (typeof stats !=='undefined' && stats.totalPending> 0) { %>
+                <span class="badge-dot"></span>
+                <% } %>
+        </a>
+        <a href="/user/bills" class="tab-link <%= page === 'bills' ? 'active' : '' %>">
+            History
+        </a>
+    </div>
+</div>
+
+<style>
+    .tab-link {
+        padding: 12px 4px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-weight: 500;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+        position: relative;
+    }
+
+    .tab-link:hover {
+        color: var(--text-main);
+    }
+
+    .tab-link.active {
+        color: var(--text-main);
+        border-bottom-color: var(--text-main);
+        /* Minimal styling */
+    }
+
+    .badge-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background-color: var(--error);
+        border-radius: 50%;
+        margin-left: 6px;
+        margin-bottom: 2px;
+    }
+</style>

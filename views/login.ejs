@@ -1,0 +1,91 @@
+<%- include('partials/header') %>
+
+    <div class="auth-container">
+        <div class="auth-box">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #fff; margin-bottom: 5px;">⚡ Powerhouse</h1>
+                <p class="text-muted">
+                    <%= role==='admin' ? 'Admin Portal' : 'Member Portal' %>
+                </p>
+            </div>
+
+            <form id="loginForm">
+                <div>
+                    <label>Email Address</label>
+                    <input type="email" id="email" placeholder="name@example.com" required>
+                </div>
+
+                <div>
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                    Sign In
+                </button>
+            </form>
+
+            <div id="message" class="text-error mt-4" style="text-align: center; font-size: 0.9em;"></div>
+
+            <div class="pt-4" style="text-align: center; margin-top: 25px; border-top: 1px solid var(--border-color);">
+                <% if(role==='user' ) { %>
+                    <p class="text-muted" style="font-size: 0.9em;">
+                        managing the house? <a href="/admin/login"
+                            style="color: var(--primary); text-decoration: none; font-weight: 500;">Admin Login</a>
+                    </p>
+                    <% } else { %>
+                        <p class="text-muted" style="font-size: 0.9em;">
+                            Not an admin? <a href="/user/login"
+                                style="color: var(--primary); text-decoration: none; font-weight: 500;">Member Login</a>
+                        </p>
+                        <% } %>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            const btn = e.target.querySelector('button');
+
+            btn.disabled = true;
+            btn.innerHTML = 'Signing in...';
+            messageDiv.innerText = '';
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data));
+
+                    // Redirect based on role returned from server
+                    if (data.role === 'admin') {
+                        window.location.href = '/admin/dashboard';
+                    } else {
+                        window.location.href = '/user/dashboard';
+                    }
+                } else {
+                    messageDiv.innerText = data.message || 'Login failed';
+                    btn.disabled = false;
+                    btn.innerHTML = 'Sign In';
+                }
+            } catch (err) {
+                console.error(err);
+                messageDiv.innerText = 'Network error occurred';
+                btn.disabled = false;
+                btn.innerHTML = 'Sign In';
+            }
+        });
+    </script>
+
+    <%- include('partials/footer') %>
