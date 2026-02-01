@@ -67,10 +67,10 @@
                                     </div>
                                     <% } %>
 
-                                        <div
+                                        <div class="mobile-card-padding"
                                             style="background: var(--bg-input); padding: 24px 32px; border-top: 1px solid var(--border-color);">
-                                            <div class="flex flex-row-mobile"
-                                                style="justify-content: space-between; align-items: center; gap: 32px;">
+                                            <div class="flex mobile-stack"
+                                                style="justify-content: space-between; align-items: flex-start; gap: 32px;">
                                                 <!-- Status -->
                                                 <div>
                                                     <div
@@ -282,5 +282,33 @@
             }
         };
     </script>
+
+    <style>
+        /* Mobile Responsiveness for Pending Bills */
+        @media (max-width: 768px) {
+            .mobile-stack {
+                flex-direction: column !important;
+                gap: 20px !important;
+            }
+
+            .mobile-card-padding {
+                padding: 20px !important;
+            }
+
+            .mobile-header-stack {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .mobile-full-width {
+                width: 100%;
+            }
+
+            .btn {
+                padding: 12px 20px !important;
+                /* Larger touch targets */
+            }
+        }
+    </style>
 
     <%- include('../partials/footer') %>
