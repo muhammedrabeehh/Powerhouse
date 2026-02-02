@@ -23,7 +23,8 @@ const loginUser = async (req, res) => {
             // Set Cookie
             res.cookie('token', token, {
                 httpOnly: true,
-                // secure: process.env.NODE_ENV === 'production', // Use in Prod
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'strict',
                 maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
             });
 
@@ -96,7 +97,13 @@ const getUsers = async (req, res) => {
 // @route   GET /login
 // @access  Public
 const renderLogin = (req, res) => {
-    res.render('login', { role: 'user' }); // Default to user if hitting generic route
+    // If already logged in, redirect?
+    // checking token existence in cookies
+    if (req.cookies.token) {
+        // ideally verify it, but for simple redirect:
+        // prevent loop if invalid token, so maybe just render login if they hit this explicitly.
+    }
+    res.render('login', { role: 'user' });
 };
 
 // @desc    Logout user / clear cookie
@@ -106,7 +113,13 @@ const logoutUser = (req, res) => {
         httpOnly: true,
         expires: new Date(0)
     });
-    res.status(200).json({ message: 'Logged out' });
+
+    // Check if it's an API call or browser navigation
+    if (req.accepts('html')) {
+        res.redirect('/login');
+    } else {
+        res.status(200).json({ message: 'Logged out' });
+    }
 };
 
 module.exports = { loginUser, registerUser, getUsers, renderLogin, logoutUser };

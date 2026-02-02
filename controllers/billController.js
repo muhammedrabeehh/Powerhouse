@@ -12,7 +12,7 @@ const createBill = async (req, res) => {
         const users = await User.find({ status: 'active', role: 'user' });
 
         if (!users || users.length === 0) {
-            // Handle case with no users if necessary
+            return res.status(400).json({ message: 'No active users found to bill.' });
         }
 
         const shareCount = users.length > 0 ? users.length : 1;
@@ -27,7 +27,7 @@ const createBill = async (req, res) => {
             totalAmount,
             individualShare,
             description,
-            upiId, // Optional override
+            upiId,
             payments,
         });
 
@@ -40,7 +40,7 @@ const createBill = async (req, res) => {
 
         res.status(201).json(bill);
     } catch (error) {
-        console.error(error);
+        console.error('Create Bill Error:', error.message);
         res.status(500).json({ message: 'Server Error' });
     }
 };
@@ -81,8 +81,8 @@ const uploadPaymentProof = async (req, res) => {
             return res.status(400).json({ message: 'Please upload a file' });
         }
 
-        // Update Logic
-        bill.payments[paymentIndex].screenshotUrl = req.file.path; // Renamed from paymentProof
+        // Update Payment
+        bill.payments[paymentIndex].screenshotUrl = req.file.path;
         bill.payments[paymentIndex].status = 'Pending_Approval';
 
         await bill.save();
@@ -98,7 +98,7 @@ const uploadPaymentProof = async (req, res) => {
 // @access  Private/Admin
 const approvePayment = async (req, res) => {
     try {
-        const { message } = req.body; // Custom message
+        const { message } = req.body;
         const bill = await Bill.findById(req.params.id);
         const userId = req.params.userId;
 
@@ -143,8 +143,7 @@ const declinePayment = async (req, res) => {
         }
 
         payment.status = 'Declined';
-        // We keep the screenshotUrl so they know what was rejected, or we could clear it?
-        // Let's keep it but maybe the UI handles re-upload by overwriting.
+        // Note: keeping screenshotUrl for reference
 
         if (message) payment.adminMessage = message;
 
@@ -171,13 +170,11 @@ const sendBillReminder = async (req, res) => {
 
         try {
             for (const payment of unpaidPayments) {
-                // Service Call
                 await sendReminder(payment.user, bill);
             }
             res.json({ message: `Reminders sent to ${unpaidPayments.length} users` });
         } catch (emailError) {
             console.error('Email Reminder Failed:', emailError.message);
-            // Still return success of the operation, but warn?
             res.json({ message: `Reminders triggered, but some emails failed.` });
         }
 
@@ -299,7 +296,6 @@ const renderUserOverview = async (req, res) => {
                     totalPending += bill.individualShare;
                 }
 
-                // Add to recent if within last 5
                 if (recentBills.length < 5) {
                     recentBills.push({
                         ...bill.toObject(),
@@ -344,7 +340,7 @@ const renderUserPending = async (req, res) => {
             user: req.user,
             bills: pendingBills,
             page: 'pending',
-            upiId: process.env.ADMIN_UPI_ID || 'admin@upi' // Fallback
+            upiId: process.env.ADMIN_UPI_ID || 'admin@upi'
         });
     } catch (error) {
         console.error(error);
