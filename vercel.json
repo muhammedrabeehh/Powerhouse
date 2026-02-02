@@ -11,5 +11,10 @@
       "src": "/(.*)",
       "dest": "app.js"
     }
-  ]
+  ],
+  "functions": {
+    "app.js": {
+      "includeFiles": "views/**"
+    }
+  }
 }
