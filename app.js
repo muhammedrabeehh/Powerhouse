@@ -34,7 +34,7 @@ app.use('/admin', require('./routes/admin'));
 app.use('/user', require('./routes/user'));
 
 // Root & Health
-app.get('/', (req, res) => res.render('landing'));
+app.get('/', (req, res) => res.render('user/landing'));
 
 const PORT = process.env.PORT || 5001;
 
