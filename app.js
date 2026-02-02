@@ -17,8 +17,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 // View Engine
-app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+// Also update your public folder path for static assets
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Static Assets
